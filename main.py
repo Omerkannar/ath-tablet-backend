@@ -35,16 +35,32 @@ fuel_increase_or_decrease = 1
 # Data Definition
 # =======================================================================================================================
 
-CLOUD_LAYER_Data_List = [
-    {"LAYER_NAME": "LAYER_1", "LAYER_TYPE": "Stratus", "LAYER_BASE_ALT": 1000, "LAYER_CEILING_ALT": 5000,
-     "LAYER_COVERAGE": 3}]
+CLOUD_LAYER_Data_List = [{
+    "LAYER_NAME": "Layer 1",
+    "LAYER_TYPE": "Fractus",
+    "LAYER_BASE_ALT": 1234,
+    "LAYER_CEILING_ALT": 4567,
+    "LAYER_COVERAGE": 0
+    }, {
+    "LAYER_NAME": "Layer 2",
+    "LAYER_TYPE": "Stratus",
+    "LAYER_BASE_ALT": 2345,
+    "LAYER_CEILING_ALT": 5678,
+    "LAYER_COVERAGE": 4
+    }, {
+    "LAYER_NAME": "Layer 3",
+    "LAYER_TYPE": "Cirrus",
+    "LAYER_BASE_ALT": 3456,
+    "LAYER_CEILING_ALT": 6789,
+    "LAYER_COVERAGE": 8
+    }]
 
 
 # =======================================================================================================================
 # Data Definition
 # =======================================================================================================================
 class Cloud_Layer_Schema(Schema):
-    LAYER_Name = fields.Str()
+    LAYER_NAME = fields.Str()
     LAYER_TYPE = fields.Str()
     LAYER_BASE_ALT = fields.Int()
     LAYER_CEILING_ALT = fields.Int()
@@ -96,11 +112,20 @@ def setCloudLayerData():
         LAYER_CEILING_ALT = request_json["LAYER_CEILING_ALT"]
         LAYER_COVERAGE = request_json["LAYER_COVERAGE"]
 
-        CLOUD_LAYER_Data_List[0]["LAYER_NAME"] = LAYER_NAME
-        CLOUD_LAYER_Data_List[0]["LAYER_TYPE"] = LAYER_TYPE
-        CLOUD_LAYER_Data_List[0]["LAYER_BASE_ALT"] = LAYER_BASE_ALT
-        CLOUD_LAYER_Data_List[0]["LAYER_CEILING_ALT"] = LAYER_CEILING_ALT
-        CLOUD_LAYER_Data_List[0]["LAYER_COVERAGE"] = LAYER_COVERAGE
+        change_index = -1
+        if LAYER_NAME == "Layer 1":
+            change_index = 0
+        if LAYER_NAME == "Layer 2":
+            change_index = 1
+        if LAYER_NAME == "Layer 3":
+            change_index = 2
+
+        if change_index >= 0:
+            CLOUD_LAYER_Data_List[change_index]["LAYER_NAME"] = LAYER_NAME
+            CLOUD_LAYER_Data_List[change_index]["LAYER_TYPE"] = LAYER_TYPE
+            CLOUD_LAYER_Data_List[change_index]["LAYER_BASE_ALT"] = LAYER_BASE_ALT
+            CLOUD_LAYER_Data_List[change_index]["LAYER_CEILING_ALT"] = LAYER_CEILING_ALT
+            CLOUD_LAYER_Data_List[change_index]["LAYER_COVERAGE"] = LAYER_COVERAGE
 
         print(request_json)
         print('finish -> setCloudLayerData')
@@ -125,8 +150,8 @@ def getCloudLayerData():
                             schema: Cloud_Layer_Schema
         """
     print('### get -> getCloudLayerData')
-    print(CLOUD_LAYER_Data_List[0])
-    return jsonify(CLOUD_LAYER_Data_List[0])
+    print(CLOUD_LAYER_Data_List)
+    return jsonify(CLOUD_LAYER_Data_List)
 
 
 ##################################################################
