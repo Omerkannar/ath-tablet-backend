@@ -35,23 +35,24 @@ fuel_increase_or_decrease = 1
 # Data Definition
 # =======================================================================================================================
 
-_CMDS_Panel_Data_List = [
-    {"LAYER_NAME": "LAYER_1", "LAYER_TYPE": "Stratus", "LAYER_BASE_ALT": 1000, "LAYER_CEILING_ALT": 5000, "LAYER_COVERAGE": 3}]
-
+CLOUD_LAYER_Data_List = [
+    {"LAYER_NAME": "LAYER_1", "LAYER_TYPE": "Stratus", "LAYER_BASE_ALT": 1000, "LAYER_CEILING_ALT": 5000,
+     "LAYER_COVERAGE": 3}]
 
 
 # =======================================================================================================================
 # Data Definition
 # =======================================================================================================================
-class CMDS_Schema(Schema):
+class Cloud_Layer_Schema(Schema):
     LAYER_Name = fields.Str()
     LAYER_TYPE = fields.Str()
     LAYER_BASE_ALT = fields.Int()
     LAYER_CEILING_ALT = fields.Int()
     LAYER_COVERAGE = fields.Int()
 
-class CMDS_List_Schema(Schema):
-    list = fields.List(fields.Nested(CMDS_Schema))
+
+class Cloud_Layer_List_Schema(Schema):
+    list = fields.List(fields.Nested(Cloud_Layer_Schema))
 
 
 # =======================================================================================================================
@@ -72,10 +73,10 @@ def create_swagger_spec():
 
 
 # =======================================================================================================================
-# setCMDSPanelData
+# setCloudLayerData
 # =======================================================================================================================
-@app.route("/setCMDSPanelData", methods=["POST"])
-def setCMDSPanelData():
+@app.route("/setCloudLayerData", methods=["POST"])
+def setCloudLayerData():
     """Post registerData
           ---
           post:
@@ -83,9 +84,9 @@ def setCMDSPanelData():
                 required: true
                 content:
                     application/json:
-                        schema: CMDS_Schema
+                        schema: Cloud_Layer_Schema
           """
-    print('start -> setCMDSPanelData')
+    print('start -> setCloudLayerData')
     if request.is_json:
         request_json = request.get_json()
 
@@ -95,25 +96,23 @@ def setCMDSPanelData():
         LAYER_CEILING_ALT = request_json["LAYER_CEILING_ALT"]
         LAYER_COVERAGE = request_json["LAYER_COVERAGE"]
 
-
-        _CMDS_Panel_Data_List[0]["LAYER_NAME"] = LAYER_NAME
-        _CMDS_Panel_Data_List[0]["LAYER_TYPE"] = LAYER_TYPE
-        _CMDS_Panel_Data_List[0]["LAYER_BASE_ALT"] = LAYER_BASE_ALT
-        _CMDS_Panel_Data_List[0]["LAYER_CEILING_ALT"] = LAYER_CEILING_ALT
-        _CMDS_Panel_Data_List[0]["LAYER_COVERAGE"] = LAYER_COVERAGE
-
+        CLOUD_LAYER_Data_List[0]["LAYER_NAME"] = LAYER_NAME
+        CLOUD_LAYER_Data_List[0]["LAYER_TYPE"] = LAYER_TYPE
+        CLOUD_LAYER_Data_List[0]["LAYER_BASE_ALT"] = LAYER_BASE_ALT
+        CLOUD_LAYER_Data_List[0]["LAYER_CEILING_ALT"] = LAYER_CEILING_ALT
+        CLOUD_LAYER_Data_List[0]["LAYER_COVERAGE"] = LAYER_COVERAGE
 
         print(request_json)
-        print('finish -> setCMDSPanelData')
-        return "success set CMDS Panel Data", 200
+        print('finish -> setCloudLayerData')
+        return "success set Cloud layer Data", 200
     return {"Error": "Request must be JSON"}, 415
 
 
 ##################################################################
-# getCMDSPanelData
+# getCloudLayerData
 ##################################################################
-@app.get("/getCMDSPanelData")
-def getCMDSPanelData():
+@app.get("/getCloudLayerData")
+def getCloudLayerData():
     """Get Test List
         ---
         get:
@@ -123,18 +122,18 @@ def getCMDSPanelData():
                     description: Return Test List
                     content:
                         application/json:
-                            schema: CMDS_Schema
+                            schema: Cloud_Layer_Schema
         """
-    print('### get -> getCMDSPanelData')
-    print(_CMDS_Panel_Data_List[0])
-    return jsonify(_CMDS_Panel_Data_List[0])
+    print('### get -> getCloudLayerData')
+    print(CLOUD_LAYER_Data_List[0])
+    return jsonify(CLOUD_LAYER_Data_List[0])
 
 
 ##################################################################
-# getCMDSPanelDataList
+# getCloudLayerDataList
 ##################################################################
-@app.get("/getCMDSPanelDataList")
-def getCMDSPanelDataList():
+@app.get("/getCloudLayerDataList")
+def getCloudLayerDataList():
     """Get Test List
         ---
         get:
@@ -144,10 +143,10 @@ def getCMDSPanelDataList():
                     description: Return Test List
                     content:
                         application/json:
-                            schema: CMDS_List_Schema
+                            schema: Cloud_Layer_List_Schema
         """
     print('start -> getData')
-    return jsonify(_CMDS_Panel_Data_List)
+    return jsonify(CLOUD_LAYER_Data_List)
 
 
 # Define a function that will be executed in the new thread
@@ -160,9 +159,9 @@ def internal_thread_function():
 # Swagger Content
 # =======================================================================================================================
 with app.test_request_context():
-    spec.path(view=setCMDSPanelData)
-    spec.path(view=getCMDSPanelData)
-    spec.path(view=getCMDSPanelDataList)
+    spec.path(view=setCloudLayerData)
+    spec.path(view=getCloudLayerData)
+    spec.path(view=getCloudLayerDataList)
 
 
 def flask_run():
