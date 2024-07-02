@@ -224,6 +224,7 @@ def setWindLayerData():
     if request.is_json:
         request_json = request.get_json()
 
+
         LAYER_NAME = request_json["LAYER_NAME"]
         LAYER_BASE_ALT = request_json["LAYER_BASE_ALT"]
         LAYER_CEILING_ALT = request_json["LAYER_CEILING_ALT"]
