@@ -1,19 +1,13 @@
-import threading
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
-from flask import Flask, jsonify, render_template, send_from_directory, request
+from flask import render_template, send_from_directory, request
 from marshmallow import Schema, fields
 from werkzeug.utils import secure_filename
-from flask_cors import CORS
 from flask import Flask, jsonify
 from flask_cors import CORS
-from array import array
-from datetime import datetime
-import json
 import threading
 import time
-import random
 
 # =======================================================================================================================
 # Global Data
@@ -37,23 +31,43 @@ fuel_increase_or_decrease = 1
 
 CLOUD_LAYER_Data_List = [{
     "LAYER_NAME": "Layer 1",
-    "LAYER_TYPE": "Fractus",
-    "LAYER_BASE_ALT": 1234,
-    "LAYER_CEILING_ALT": 4567,
+    "LAYER_TYPE": "Stratus",
+    "LAYER_BASE_ALT": 0,
+    "LAYER_CEILING_ALT": 0,
     "LAYER_COVERAGE": 0
-    }, {
+}, {
     "LAYER_NAME": "Layer 2",
     "LAYER_TYPE": "Stratus",
-    "LAYER_BASE_ALT": 2345,
-    "LAYER_CEILING_ALT": 5678,
-    "LAYER_COVERAGE": 4
-    }, {
+    "LAYER_BASE_ALT": 0,
+    "LAYER_CEILING_ALT": 0,
+    "LAYER_COVERAGE": 0
+}, {
     "LAYER_NAME": "Layer 3",
-    "LAYER_TYPE": "Cirrus",
-    "LAYER_BASE_ALT": 3456,
-    "LAYER_CEILING_ALT": 6789,
-    "LAYER_COVERAGE": 8
-    }]
+    "LAYER_TYPE": "Stratus",
+    "LAYER_BASE_ALT": 0,
+    "LAYER_CEILING_ALT": 0,
+    "LAYER_COVERAGE": 0
+}]
+
+WIND_LAYER_Data_List = [{
+    "LAYER_NAME": "Layer 1",
+    "LAYER_BASE_ALT": 0,
+    "LAYER_CEILING_ALT": 0,
+    "LAYER_SPEED": 0,
+    "LAYER_DIRECTION": 0,
+}, {
+    "LAYER_NAME": "Layer 2",
+    "LAYER_BASE_ALT": 0,
+    "LAYER_CEILING_ALT": 10000,
+    "LAYER_SPEED": 50,
+    "LAYER_DIRECTION": 90,
+}, {
+    "LAYER_NAME": "Layer 3",
+    "LAYER_BASE_ALT": 2000,
+    "LAYER_CEILING_ALT": 12000,
+    "LAYER_SPEED": 10,
+    "LAYER_DIRECTION": 275,
+}]
 
 
 # =======================================================================================================================
@@ -69,6 +83,18 @@ class Cloud_Layer_Schema(Schema):
 
 class Cloud_Layer_List_Schema(Schema):
     list = fields.List(fields.Nested(Cloud_Layer_Schema))
+
+
+class Wind_Layer_Schema(Schema):
+    LAYER_NAME = fields.Str()
+    LAYER_BASE_ALT = fields.Int()
+    LAYER_CEILING_ALT = fields.Int()
+    LAYER_SPEED = fields.Int()
+    LAYER_DIRECTION = fields.Int()
+
+
+class Wind_Layer_List_Schema(Schema):
+    list = fields.List(fields.Nested(Wind_Layer_Schema))
 
 
 # =======================================================================================================================
@@ -176,8 +202,94 @@ def getCloudLayerDataList():
 
 # Define a function that will be executed in the new thread
 def internal_thread_function():
-    while (True):
+    while True:
         time.sleep(10)
+
+
+# =======================================================================================================================
+# setWindLayerData
+# =======================================================================================================================
+@app.route("/setWindLayerData", methods=["POST"])
+def setWindLayerData():
+    """Post registerData
+          ---
+          post:
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: Wind_Layer_Schema
+          """
+    print('start -> setWindLayerData')
+    if request.is_json:
+        request_json = request.get_json()
+
+        LAYER_NAME = request_json["LAYER_NAME"]
+        LAYER_BASE_ALT = request_json["LAYER_BASE_ALT"]
+        LAYER_CEILING_ALT = request_json["LAYER_CEILING_ALT"]
+        LAYER_SPEED = request_json["LAYER_SPEED"]
+        LAYER_DIRECTION = request_json["LAYER_DIRECTION"]
+
+        change_index = -1
+        if LAYER_NAME == "Layer 1":
+            change_index = 0
+        if LAYER_NAME == "Layer 2":
+            change_index = 1
+        if LAYER_NAME == "Layer 3":
+            change_index = 2
+
+        if change_index >= 0:
+            WIND_LAYER_Data_List[change_index]["LAYER_NAME"] = LAYER_NAME
+            WIND_LAYER_Data_List[change_index]["LAYER_BASE_ALT"] = LAYER_BASE_ALT
+            WIND_LAYER_Data_List[change_index]["LAYER_CEILING_ALT"] = LAYER_CEILING_ALT
+            WIND_LAYER_Data_List[change_index]["LAYER_SPEED"] = LAYER_SPEED
+            WIND_LAYER_Data_List[change_index]["LAYER_DIRECTION"] = LAYER_DIRECTION
+
+        print(request_json)
+        print('finish -> setWindLayerData')
+        return "success set Wind layer Data", 200
+    return {"Error": "Request must be JSON"}, 415
+
+
+##################################################################
+# getWindLayerData
+##################################################################
+@app.get("/getWindLayerData")
+def getWindLayerData():
+    """Get Test List
+        ---
+        get:
+            description: get
+            responses:
+                200:
+                    description: Return Test List
+                    content:
+                        application/json:
+                            schema: Wind_Layer_Schema
+        """
+    print('### get -> getWindLayerData')
+    print(WIND_LAYER_Data_List)
+    return jsonify(WIND_LAYER_Data_List)
+
+
+##################################################################
+# getWindLayerDataList
+##################################################################
+@app.get("/getWindLayerDataList")
+def getWindLayerDataList():
+    """Get Test List
+        ---
+        get:
+            description: get
+            responses:
+                200:
+                    description: Return Test List
+                    content:
+                        application/json:
+                            schema: Wind_Layer_List_Schema
+        """
+    print('start -> getData')
+    return jsonify(WIND_LAYER_Data_List)
 
 
 # =======================================================================================================================
