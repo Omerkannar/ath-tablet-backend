@@ -14,7 +14,10 @@ import time
 # =======================================================================================================================
 app = Flask(__name__, template_folder='./swagger/templates')
 CORS(app)
+# localhost
 CORS(app, resources={r"/*": {"origins": "http://localhost:5000"}})
+# site
+# CORS(app, resources={r"/*": {"origins": "http://192.168.18.162:5000"}})
 
 spec = APISpec(
     title='flask-api-swagger-doc',
@@ -69,6 +72,10 @@ WIND_LAYER_Data_List = [{
     "LAYER_DIRECTION": 275,
 }]
 
+TEMPLATE_Data_List = {
+    "TEMPLATE_STRING": "String",
+    "TEMPLATE_NUMBER": 123456
+}
 
 # =======================================================================================================================
 # Data Definition
@@ -95,6 +102,11 @@ class Wind_Layer_Schema(Schema):
 
 class Wind_Layer_List_Schema(Schema):
     list = fields.List(fields.Nested(Wind_Layer_Schema))
+class Template_Layer_Schema(Schema):
+    TEMPLATE_STRING = fields.Str()
+    TEMPLATE_NUMBER = fields.Int()
+class Template_Layer_List_Schema(Schema):
+    list = fields.List(fields.Nested(Template_Layer_Schema))
 
 
 # =======================================================================================================================
@@ -292,6 +304,60 @@ def getWindLayerDataList():
     print('start -> getData')
     return jsonify(WIND_LAYER_Data_List)
 
+##################################################################
+# getTemplateData
+##################################################################
+@app.get("/getTemplateLayerData")
+def getTemplateLayerData():
+    """Get Test List
+        ---
+        get:
+            description: get
+            responses:
+                200:
+                    description: Return Test List
+                    content:
+                        application/json:
+                            schema: Template_Layer_Schema
+        """
+    print('### get -> getTemplateLayerData')
+    print(TEMPLATE_Data_List)
+    return jsonify(TEMPLATE_Data_List)
+
+# =======================================================================================================================
+# setWindLayerData
+# =======================================================================================================================
+@app.route("/setTemplateLayerData", methods=["POST"])
+def setTemplateLayerData():
+    """Post registerData
+          ---
+          post:
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema: Template_Layer_Schema
+          """
+    print('start -> setTemplateLayerData')
+    if request.is_json:
+        request_json = request.get_json()
+
+
+        TEMPLATE_STRING = request_json["TEMPLATE_STRING"]
+        TEMPLATE_NUMBER = request_json["TEMPLATE_NUMBER"]
+
+
+
+        TEMPLATE_Data_List["TEMPLATE_STRING"] = TEMPLATE_STRING
+        TEMPLATE_Data_List["TEMPLATE_NUMBER"] = TEMPLATE_NUMBER
+
+
+        print(request_json)
+        print('finish -> setTemplateLayerData')
+        return "success set Template layer Data", 200
+    return {"Error": "Request must be JSON"}, 415
+
+
 
 # =======================================================================================================================
 # Swagger Content
@@ -300,6 +366,8 @@ with app.test_request_context():
     spec.path(view=setCloudLayerData)
     spec.path(view=getCloudLayerData)
     spec.path(view=getCloudLayerDataList)
+    spec.path(view=getTemplateLayerData)
+    spec.path(view=setTemplateLayerData)
 
 
 def flask_run():
